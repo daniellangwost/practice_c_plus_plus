@@ -36,6 +36,7 @@ void Rocket::update(const double& timestep_seconds)
 
 void Rocket::adjust_guidance(int remaining_corrections)
 {
+  std::cout << "Called adjust, velocityY is: " << m_velocityY << "\n";
   if (!m_target_altitude_reached)
   {
     double curr_v { sqrt( (m_velocityX * m_velocityX) + (m_velocityY * m_velocityY) ) };
@@ -48,10 +49,16 @@ void Rocket::adjust_guidance(int remaining_corrections)
     }
     
     double height_difference {m_target_altitude - max_height};
+
     if (height_difference > 0)
     {
       double adjustment_per_second { height_difference / remaining_corrections };
-      m_velocityY += std::max(adjustment_per_second, 9.81);
+      if (m_velocityY - 9.81 > 0)
+      {
+        m_velocityY += adjustment_per_second;
+      } else {
+        m_velocityY += fabs(m_velocityY - 9.81);
+      }
     }
   }
 }
