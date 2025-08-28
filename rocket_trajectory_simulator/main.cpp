@@ -8,27 +8,35 @@
 int main()
 {
   const double MAX_VELOCITY { 10'000 };
+  const double MAX_ALTITUDE { 100'000 };
 
   double angle{ get_positive_number(90, "angle", "degrees") };
   double velocity{ get_positive_number(MAX_VELOCITY, "velocity", "m/s") };
+  double target_altitude { get_positive_number(MAX_ALTITUDE, "altitude", "m")};
 
-  Rocket rocket(0, 0, velocity, angle); // instantiate rocket
+  Rocket rocket(0, 0, velocity, angle, target_altitude); // instantiate rocket
   std::vector<std::pair<double, double>> data {};
   
-  int flight_seconds {10};
-  double timestep {0.1};
-  double iterations = flight_seconds / timestep;
-  
+  constexpr double TIMESTEP {0.1};
+  int iterations { 1000 };
+
   for (int i{0}; i < iterations; ++i)
   {
     data.push_back(rocket.log()); // log data
-    rocket.update(timestep); // update rocket object
+    rocket.update(TIMESTEP); // update rocket object
     if (rocket.get_y() < 0) // stop calculation when rocket hits ground
     {
       break;
     }
-  }
 
+    if (i % 10 == 0)
+    {
+      int remaining_iterations {iterations - i};
+      int remaining_corrections {remaining_iterations / 10};
+
+      rocket.adjust_guidance(remaining_corrections);
+    }
+  }
   write_data(data);
 }
 

@@ -3,18 +3,26 @@
 #include <iostream>
 #include "rocket.h"
 
-Rocket::Rocket(double x, double y, double velocity, double angle)
+Rocket::Rocket(double x, double y, double velocity, double angle, double target_altitude)
   : m_velocity {velocity}
   , m_angle {angle}
   , m_velocityX {cos(angle * (M_PI / 180)) * velocity} // horizontal component
   , m_velocityY {sin(angle * (M_PI / 180)) * velocity} // vertical component
   , m_x {x}
   , m_y {y}
+  , m_target_altitude {target_altitude}
+  , m_target_altitude_reached {false}
 {
 }
 
 void Rocket::update(const double& timestep_seconds)
 {
+  double dy_per_step {m_velocityY * timestep_seconds - 0.5 * 9.81 * timestep_seconds * timestep_seconds};
+  if ((m_y + dy_per_step > m_target_altitude) || (m_y > m_target_altitude))
+  {
+    std::cout << "REACHED TARGET AT ALTITUDE " << m_y << "\n"; 
+    m_target_altitude_reached = true;
+  }
   double dx = timestep_seconds * m_velocityX;
   m_x += dx;
 
@@ -24,6 +32,28 @@ void Rocket::update(const double& timestep_seconds)
   m_y += dy;
 
   m_velocityY += dvelocityY;
+}
+
+void Rocket::adjust_guidance(int remaining_corrections)
+{
+  if (!m_target_altitude_reached)
+  {
+    double curr_v { sqrt( (m_velocityX * m_velocityX) + (m_velocityY * m_velocityY) ) };
+    double curr_angle_rad { atan( m_velocityY / m_velocityX )};
+
+    double max_height{};
+    if (m_velocityY > 0)
+    {
+      max_height = m_y + ((curr_v * curr_v) * sin(curr_angle_rad) * sin(curr_angle_rad)) / (2 * 9.81);
+    }
+    
+    double height_difference {m_target_altitude - max_height};
+    if (height_difference > 0)
+    {
+      double adjustment_per_second { height_difference / remaining_corrections };
+      m_velocityY += std::max(adjustment_per_second, 9.81);
+    }
+  }
 }
 
 std::pair<double, double> Rocket::log()

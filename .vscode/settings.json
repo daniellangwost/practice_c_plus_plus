@@ -56,6 +56,8 @@
     "sstream": "cpp",
     "stop_token": "cpp",
     "thread": "cpp",
-    "variant": "cpp"
-  }
+    "variant": "cpp",
+    "fstream": "cpp"
+  },
+  "C_Cpp.errorSquiggles": "enabled"
 }

@@ -18,7 +18,8 @@
         "-std=c++20",
         //"-O2",    for release
         //"-O2",    for release
-        "${fileDirname}/**.cpp",
+        "${fileDirname}/**.cpp", // for multiple files
+        // "${file}", // for a single file
         "-o",
         "${fileDirname}/${fileBasenameNoExtension}"
       ],
