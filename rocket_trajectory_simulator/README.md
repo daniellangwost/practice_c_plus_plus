@@ -17,9 +17,6 @@ To practice working with multiple files, function prototypes and the basic class
 ## Issues
 For shallow approach angles to the target altitude, the function would not increase the velocity enough, causing the rocket to plummet towards the ground. This was solved by implementing a minimum added velocity taking into account how negative the velocity would be after a 1s effect of gravity.
 
-## Overshooting due to input parameters
-When the input angle and speed are extreme relative to the target altitude, the adjust guidance function does not have functionality to reduce the vertical speed of the rocket. This was not implemented due to the fact that a usual goal for amateur rocketry is surpassing a target altitude and not getting as close to it as possible. Furthermore, downward adjustments would have the possibility of running into numerical issues concerning the step size in relation to the input velocity.
-
 ## Test Cases
 - 30 m/s, 50°, 30m target → Peak ~31.6m
 - 10 m/s, 30°, 5m target → Peak ~5.4m
