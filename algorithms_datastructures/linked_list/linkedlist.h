@@ -15,6 +15,7 @@ public:
   void append(int value);
   void prepend(int value);
   void print();
+  void clear();
 };
 
 #endif

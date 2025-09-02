@@ -40,3 +40,15 @@ void LinkedList::print()
   }
   std::cout << "\n";
 }
+
+void LinkedList::clear()
+{
+  Node* current = head;
+  while (current)
+  {
+    Node* temp = current;
+    current = current->next;
+    delete temp;
+  }
+  head = nullptr;
+}
