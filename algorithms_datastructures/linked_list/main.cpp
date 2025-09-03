@@ -10,7 +10,7 @@ int main()
   mylist.prepend(5);
   mylist.append(100);
   mylist.print();
-  mylist.clear();
+  mylist.reverse();
   mylist.print();
   std::cout << "Done";
 }

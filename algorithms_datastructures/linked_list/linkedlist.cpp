@@ -52,3 +52,20 @@ void LinkedList::clear()
   }
   head = nullptr;
 }
+
+void LinkedList::reverse()
+{
+  if (!head) return;
+
+  Node* prev = nullptr;
+  Node* curr = head;
+
+  while (curr != nullptr)
+  {
+    Node* next = curr->next;
+    curr->next = prev;
+    prev = curr;
+    curr = next;
+  }
+  head = prev;
+}

@@ -16,6 +16,7 @@ public:
   void prepend(int value);
   void print();
   void clear();
+  void reverse();
 };
 
 #endif
