@@ -29,7 +29,7 @@ void LinkedList::prepend(int value)
   head = n;
 }
 
-void LinkedList::print()
+void LinkedList::print() const
 {
   Node* current = head;
   while (current)
@@ -68,4 +68,16 @@ void LinkedList::reverse()
     curr = next;
   }
   head = prev;
+}
+
+int LinkedList::size() const
+{
+  int count { 0 };
+  Node* curr = head;
+  while (curr)
+  {
+    curr = curr->next;
+    ++count;
+  }
+  return count;
 }

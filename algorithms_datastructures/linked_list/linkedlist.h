@@ -14,9 +14,10 @@ class LinkedList
 public:
   void append(int value);
   void prepend(int value);
-  void print();
+  void print() const;
   void clear();
   void reverse();
+  int size() const;
 };
 
 #endif
