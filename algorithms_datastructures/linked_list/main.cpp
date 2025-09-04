@@ -12,5 +12,10 @@ int main()
   mylist.print();
   mylist.reverse();
   mylist.print();
-  std::cout << "Done";
+  mylist.remove(3);
+  mylist.print();
+  mylist.remove(100);
+  mylist.print();
+  mylist.remove(5);
+  mylist.print();
 }

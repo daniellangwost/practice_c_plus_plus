@@ -14,10 +14,11 @@ class LinkedList
 public:
   void append(int value);
   void prepend(int value);
-  void print() const;
   void clear();
   void reverse();
+  bool remove(int value); // removes first occurence
   int size() const;
+  void print() const;
 };
 
 #endif

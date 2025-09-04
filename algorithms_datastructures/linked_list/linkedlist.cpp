@@ -81,3 +81,27 @@ int LinkedList::size() const
   }
   return count;
 }
+
+bool LinkedList::remove(int value) // removes first occurence of value
+{
+  Node* prev = nullptr;
+  Node* curr = head;
+  while (curr)
+  {
+    if (curr->value == value)
+    {
+      if (!prev) // value is at head
+      {
+        head = curr->next;
+        delete curr;
+        return true;
+      }
+      prev->next = curr->next;
+      delete curr;
+      return true;
+    }
+    prev = curr;
+    curr = curr->next;
+  }
+  return false;
+}
