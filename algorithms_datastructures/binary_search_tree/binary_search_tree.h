@@ -1,0 +1,16 @@
+struct Node
+{
+  int value{};
+  Node* left {nullptr};
+  Node* right {nullptr};
+};
+
+class BinarySearchTree
+{
+private:
+  Node* root;
+  void insert(int value, Node* start);
+public:
+  BinarySearchTree();
+  void insert(int value);
+};
