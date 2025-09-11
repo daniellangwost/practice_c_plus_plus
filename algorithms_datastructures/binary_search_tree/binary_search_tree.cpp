@@ -99,9 +99,7 @@ bool BinarySearchTree::remove(int value)
 
   if (!curr) return false;
 
-  // curr points to the Node to be removed
-
-  if (!curr->left && !curr->right) // leaf node
+  if (!curr->left && !curr->right) // no child node
   {
     if (curr == root)
     {
@@ -131,7 +129,6 @@ bool BinarySearchTree::remove(int value)
   }
   else // two child nodes
   {
-    // find smallest in right subtree
     Node* successor = curr->right;
     Node* successor_parent = curr;
     while (successor->left)
@@ -140,7 +137,7 @@ bool BinarySearchTree::remove(int value)
       successor = successor->left;
     }
 
-    curr->value = successor->value; // replace with successor
+    curr->value = successor->value;
 
     if (!successor->left && !successor->right)
     {
@@ -155,11 +152,50 @@ bool BinarySearchTree::remove(int value)
       }
       else
       {
-        successor_parent->left = successor->right; // remove successor from original position
+        successor_parent->left = successor->right;
       }
     }
     delete successor;
   }
 
   return true;
+}
+
+void BinarySearchTree::ordered_print(Node* start) const
+{
+  if (start->left) ordered_print(start->left);
+  std::cout << start->value << " ";
+  if (start->right) ordered_print(start->right);
+}
+
+void BinarySearchTree::ordered_print() const
+{
+  if (root) ordered_print(root);
+  std::cout << "\n";
+}
+
+void BinarySearchTree::pre_order_print(Node* start) const
+{
+  std::cout << start->value << " ";
+  if (start->left) pre_order_print(start->left);
+  if (start->right) pre_order_print(start->right);
+}
+
+void BinarySearchTree::pre_order_print() const
+{
+  if (root) pre_order_print(root);
+  std::cout << "\n";
+}
+
+void BinarySearchTree::post_order_print(Node* start) const
+{
+  if (start->left) post_order_print(start->left);
+  if (start->right) post_order_print(start->right);
+  std::cout << start->value << " ";
+}
+
+void BinarySearchTree::post_order_print() const
+{
+  if (root) post_order_print(root);
+  std::cout << "\n";
 }
