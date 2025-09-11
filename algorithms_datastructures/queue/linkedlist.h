@@ -15,6 +15,7 @@ class LinkedList
   Node* tail{nullptr};
 
 public:
+  ~LinkedList();
   void append(int value);
   void prepend(int value);
   void clear();

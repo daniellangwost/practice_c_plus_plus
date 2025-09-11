@@ -2,6 +2,11 @@
 #include <optional>
 #include "linkedlist.h"
 
+LinkedList::~LinkedList()
+{
+  clear();
+}
+
 void LinkedList::append(int value)
 {
   Node* n = new Node;
