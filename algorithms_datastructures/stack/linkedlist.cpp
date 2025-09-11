@@ -113,7 +113,7 @@ bool LinkedList::removeIndex(int index)
   Node* curr = head;
   Node* prev = nullptr;
 
-  if (index < 0 || index > size() || !head) {return false;}
+  if (index < 0 || !head) {return false;}
 
   if (index == 0)
   {
@@ -132,6 +132,7 @@ bool LinkedList::removeIndex(int index)
     }
     prev = curr;
     curr = curr->next;
+    ++curr_index;
   }
   return false;
 }

@@ -28,6 +28,4 @@ int main()
   stack.pop();
 
   std::cout << stack.isEmpty() << "\n";
-
-  
 }
