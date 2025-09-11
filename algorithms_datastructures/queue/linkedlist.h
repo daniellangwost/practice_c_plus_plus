@@ -18,7 +18,6 @@ public:
   void append(int value);
   void prepend(int value);
   void clear();
-  void reverse();
   bool remove(int value); // removes first occurence
   bool removeHead();
   int size() const;
