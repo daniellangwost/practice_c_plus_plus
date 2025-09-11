@@ -10,7 +10,10 @@ class BinarySearchTree
 private:
   Node* root;
   void insert(int value, Node* start);
+  bool search(int value, Node* start);
 public:
   BinarySearchTree();
   void insert(int value);
+  bool search(int value);
+  bool remove(int value);
 };

@@ -1,3 +1,4 @@
+#include <iostream>
 #include "binary_search_tree.h"
 
 BinarySearchTree::BinarySearchTree()
@@ -48,4 +49,25 @@ void BinarySearchTree::insert(int value)
     return;
   }
   insert(value, root);
+}
+
+bool BinarySearchTree::search(int value, Node* start)
+{
+  if (value == start->value) {return true;}
+  if (value < start->value)
+  {
+    if (!start->left) {return false;}
+    return search(value, start->left);
+  } else if (value > start->value)
+  {
+    if (!start->right) {return false;}
+    return search(value, start->right);
+  }
+  return false;
+}
+
+bool BinarySearchTree::search(int value)
+{
+  if (!root) {return false;}
+  return search(value, root);
 }
