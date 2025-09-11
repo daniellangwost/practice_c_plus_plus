@@ -14,12 +14,18 @@ private:
   void ordered_print(Node* start) const;
   void pre_order_print(Node* start) const;
   void post_order_print(Node* start) const;
+  void clear(Node* root);
 public:
   BinarySearchTree();
+  ~BinarySearchTree();
   void insert(int value);
   bool search(int value) const;
   bool remove(int value);
   void ordered_print() const;
   void pre_order_print() const;
   void post_order_print() const;
+  void clear();
+
+  BinarySearchTree(const BinarySearchTree&) = delete;
+  BinarySearchTree& operator=(const BinarySearchTree&) = delete;
 };

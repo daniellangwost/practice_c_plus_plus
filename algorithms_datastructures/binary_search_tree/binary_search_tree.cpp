@@ -6,6 +6,11 @@ BinarySearchTree::BinarySearchTree()
 {
 }
 
+BinarySearchTree::~BinarySearchTree()
+{
+  clear();
+}
+
 void BinarySearchTree::insert(int value, Node* start)
 {
   Node* curr = start;
@@ -198,4 +203,19 @@ void BinarySearchTree::post_order_print() const
 {
   if (root) post_order_print(root);
   std::cout << "\n";
+}
+
+void BinarySearchTree::clear(Node* root)
+{
+  if (!root) return;
+
+  if (root->left) clear(root->left);
+  if (root->right) clear(root->right);
+  delete root;
+}
+
+void BinarySearchTree::clear()
+{
+  clear(root);
+  root = nullptr;
 }
