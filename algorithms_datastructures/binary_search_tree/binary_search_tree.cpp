@@ -1,4 +1,6 @@
 #include <iostream>
+#include <queue>
+#include <vector>
 #include "binary_search_tree.h"
 
 BinarySearchTree::BinarySearchTree()
@@ -202,6 +204,54 @@ void BinarySearchTree::post_order_print(Node* start) const
 void BinarySearchTree::post_order_print() const
 {
   if (root) post_order_print(root);
+  std::cout << "\n";
+}
+
+// recursive approach without using a queue
+
+// void BinarySearchTree::level_order_print(Node* start, size_t depth, std::vector<std::vector<int>>& values) const
+// {
+//   if (!start) return;
+
+//   if (values.size() <= depth) values.push_back({}); // add row to vector if needed
+
+//   values[depth].push_back(start->value);
+//   level_order_print(start->left, depth+1, values);
+//   level_order_print(start->right, depth+1, values); 
+// }
+
+// void BinarySearchTree::level_order_print() const
+// {
+//   std::vector<std::vector<int>> values;
+//   if (!root) return;
+
+//   level_order_print(root, 0, values);
+
+//   for (auto nums : values)
+//   {
+//     for (auto n : nums)
+//     {
+//       std::cout << n << " ";
+//     }
+//     std::cout << "\n";
+//   }
+//   std::cout << "\n";
+// }
+
+void BinarySearchTree::level_order_print() const
+{
+  if (!root) return;
+  std::queue<Node*> q;
+  q.push(root);
+
+  while (!q.empty())
+  {
+    Node* curr = q.front();
+    std::cout << q.front()->value << " ";
+    if (curr->left) q.push(curr->left);
+    if (curr->right) q.push(curr->right);
+    q.pop();
+  }
   std::cout << "\n";
 }
 

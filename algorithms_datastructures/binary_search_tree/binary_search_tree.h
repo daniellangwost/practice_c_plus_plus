@@ -1,3 +1,8 @@
+#ifndef BINARY_SEARCH_TREE_H
+#define BINARY_SEARCH_TREE_H
+
+#include <vector>
+
 struct Node
 {
   int value{};
@@ -14,6 +19,11 @@ private:
   void ordered_print(Node* start) const;
   void pre_order_print(Node* start) const;
   void post_order_print(Node* start) const;
+
+  // recursive approach without using a queue
+  // void level_order_print(Node* start, size_t depth, std::vector<std::vector<int>>& values) const;
+
+  
   void clear(Node* root);
 public:
   BinarySearchTree();
@@ -24,8 +34,11 @@ public:
   void ordered_print() const;
   void pre_order_print() const;
   void post_order_print() const;
+  void level_order_print() const;
   void clear();
 
   BinarySearchTree(const BinarySearchTree&) = delete;
   BinarySearchTree& operator=(const BinarySearchTree&) = delete;
 };
+
+#endif
