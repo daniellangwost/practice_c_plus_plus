@@ -6,13 +6,14 @@ class Heap
 {
 private:
   std::vector<int> m_elements{};
+  void heapifyDown(size_t index);
 
 public:
   void insert(int value);
   int extractMin();
-  int getMin();
-  bool isEmpty();
-  int size();
+  int getMin() const;
+  bool isEmpty() const;
+  int size() const;
 };
 
 #endif
