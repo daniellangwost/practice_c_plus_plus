@@ -4,6 +4,13 @@
 
 #include "matrix.h"
 
+Matrix::Matrix()
+  : m_rows{0}
+  , m_columns{0}
+  , m_data{}
+{
+}
+
 // Constructor does not use initializer list for easy validity check of arguments
 
 Matrix::Matrix(size_t rows, size_t columns)
@@ -186,7 +193,7 @@ Matrix Matrix::add_vec(std::vector<double>& v, bool to_col) const
   size_t rows = get_rows();
   size_t cols = get_columns();
 
-  if (to_col && rows != v.size() || !to_col && cols != v.size())
+  if ((to_col && rows != v.size()) || (!to_col && cols != v.size()))
     throw std::invalid_argument("Dimensions don't match for vector addition");
 
   Matrix result(rows, cols);

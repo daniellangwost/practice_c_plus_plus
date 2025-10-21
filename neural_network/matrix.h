@@ -14,6 +14,7 @@ private:
   static size_t validateSize(size_t size);
 
 public:
+  Matrix();
   Matrix(size_t rows, size_t columns);
   Matrix(const std::vector<std::vector<double>>& data);
   void print() const;
