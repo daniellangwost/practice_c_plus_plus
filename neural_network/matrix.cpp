@@ -95,67 +95,52 @@ Matrix Matrix::matrix_mul(const Matrix& b) const
   return result;
 }
 
-Matrix Matrix::matrix_add(const Matrix& b) const
+void Matrix::matrix_add(const Matrix& b)
 {
-  size_t rows = get_rows();
-  size_t cols = get_columns();
-  if (rows != b.m_data.size() || cols != b.m_data[0].size()) throw std::invalid_argument("Matrices must have the same dimensions");
-  Matrix result(rows, cols);
-  for (size_t i{}; i < rows; ++i)
+  if (m_rows != b.m_data.size() || m_columns != b.m_data[0].size()) throw std::invalid_argument("Matrices must have the same dimensions");
+
+  for (size_t i{}; i < m_rows; ++i)
   {
-    for (size_t j{}; j < cols; ++j)
+    for (size_t j{}; j < m_columns; ++j)
     {
-      result.m_data[i][j] = m_data[i][j] + b.m_data[i][j];
+      m_data[i][j] += b.m_data[i][j];
     }
   }
-  return result;
 }
 
-Matrix Matrix::matrix_sub(const Matrix& b) const
+void Matrix::matrix_sub(const Matrix& b)
 {
-  size_t rows = get_rows();
-  size_t cols = get_columns();
-  if (rows != b.m_data.size() || cols != b.m_data[0].size()) throw std::invalid_argument("Matrices must have the same dimensions");
-  Matrix result(rows, cols);
-  for (size_t i{}; i < rows; ++i)
+  if (m_rows != b.m_data.size() || m_columns != b.m_data[0].size()) throw std::invalid_argument("Matrices must have the same dimensions");
+
+  for (size_t i{}; i < m_rows; ++i)
   {
-    for (size_t j{}; j < cols; ++j)
+    for (size_t j{}; j < m_columns; ++j)
     {
-      result.m_data[i][j] = m_data[i][j] - b.m_data[i][j];
+      m_data[i][j] -= b.m_data[i][j];
     }
   }
-  return result;
 }
 
-Matrix Matrix::matrix_mul_s(double s) const
+void Matrix::matrix_mul_s(double s)
 {
-  size_t rows = get_rows();
-  size_t cols = get_columns();
-  Matrix result(rows, cols);
-  for (size_t i{}; i < rows; ++i)
+  for (size_t i{}; i < m_rows; ++i)
   {
-    for (size_t j{}; j < cols; ++j)
+    for (size_t j{}; j < m_columns; ++j)
     {
-      result.m_data[i][j] = s * m_data[i][j];
+      m_data[i][j] *= s;
     }
   }
-  return result;
 }
 
-Matrix Matrix::matrix_sub_s(double s) const
+void Matrix::matrix_sub_s(double s)
 {
-  size_t rows = get_rows();
-  size_t cols = get_columns();
-  Matrix result(rows, cols);
-
-  for (size_t i{}; i < rows; ++i)
+  for (size_t i{}; i < m_rows; ++i)
   {
-    for (size_t j{}; j < cols; ++j)
+    for (size_t j{}; j < m_columns; ++j)
     {
-      result.m_data[i][j] = m_data[i][j] - s;
+      m_data[i][j] -= s;
     }
   }
-  return result;
 }
 
 Matrix Matrix::transpose() const
@@ -174,26 +159,20 @@ Matrix Matrix::transpose() const
   return result;
 }
 
-Matrix Matrix::hadamard(const Matrix& b) const
+void Matrix::hadamard(const Matrix& b)
 {
-  size_t rows = get_rows();
-  size_t cols = get_columns();
+  if (m_rows != b.get_rows() || m_columns != b.get_columns()) throw std::invalid_argument("Matrices must have the same dimensions");
 
-  if (rows != b.get_rows() || cols != b.get_columns()) throw std::invalid_argument("Matrices must have the same dimensions");
-
-  Matrix result(rows, cols);
-
-  for (size_t i{}; i < rows; ++i)
+  for (size_t i{}; i < m_rows; ++i)
   {
-    for (size_t j{}; j < cols; ++j)
+    for (size_t j{}; j < m_columns; ++j)
     {
-      result.m_data[i][j] = m_data[i][j] * b.m_data[i][j];
+      m_data[i][j] *= b.m_data[i][j];
     }
   }
-  return result;
 }
 
-Matrix Matrix::add_vec(std::vector<double>& v, bool to_col) const
+void Matrix::add_vec(std::vector<double>& v, bool to_col)
 {
   size_t rows = get_rows();
   size_t cols = get_columns();
@@ -201,33 +180,28 @@ Matrix Matrix::add_vec(std::vector<double>& v, bool to_col) const
   if ((to_col && rows != v.size()) || (!to_col && cols != v.size()))
     throw std::invalid_argument("Dimensions don't match for vector addition");
 
-  Matrix result(rows, cols);
-
   for (size_t i{}; i < rows; ++i)
   {
     for (size_t j{}; j < cols; ++j)
     {
-      if (to_col) result.m_data[i][j] = m_data[i][j] + v[i];
-      else result.m_data[i][j] = m_data[i][j] + v[j];
+      if (to_col) m_data[i][j] += v[i];
+      else m_data[i][j] += v[j];
     }
   }
-  return result;
 }
 
-Matrix Matrix::apply(std::function<double(double)> f) const
+void Matrix::apply(std::function<double(double)> f)
 {
   size_t rows = get_rows();
   size_t cols = get_columns();
-  Matrix result(rows, cols);
 
   for (size_t i{}; i < rows; ++i)
   {
     for (size_t j{}; j < cols; ++j)
     {
-      result.m_data[i][j] = f(m_data[i][j]);
+      m_data[i][j] = f(m_data[i][j]);
     }
   }
-  return result;
 }
 
 void Matrix::set(size_t row, size_t col, double val)
