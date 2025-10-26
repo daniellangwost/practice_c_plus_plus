@@ -9,8 +9,10 @@
 
 int main()
 {
-  // NN net({2, 3, 1});
+  const int TRAINING_IMAGE_COUNT = 60000;
+  const int TEST_IMAGE_COUNT = 10000;
 
-  std::vector<Matrix> x = load_mnist_images("train-images.idx3-ubyte", 1);
+  std::vector<Matrix> training_data = load_mnist_images("data/train.idx3-ubyte", TRAINING_IMAGE_COUNT);
+  std::vector<Matrix> test_data = load_mnist_images("data/test.idx3-ubyte", TEST_IMAGE_COUNT);
 
 }
