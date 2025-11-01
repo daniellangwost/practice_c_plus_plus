@@ -11,5 +11,4 @@ int read_int(std::ifstream& in);
 void read_image(Matrix& m, std::ifstream& in);
 size_t read_label(Matrix& m, std::ifstream& in);
 
-
 #endif

@@ -15,7 +15,10 @@ private:
 
 public:
     NN(std::vector<size_t> neuron_counts);
-    Matrix feed_forward(Matrix& a);
+    Matrix feed_forward_with_sigm(Matrix& a);
+    std::vector<Matrix> activations_no_sigm(Matrix& a);
+    std::pair<std::vector<Matrix>, std::vector<Matrix>> backprop(Matrix& x, Matrix& y);
+
 };
 
 #endif
