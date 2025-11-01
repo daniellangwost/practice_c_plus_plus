@@ -54,54 +54,6 @@ Matrix sigmoid(Matrix& z)
   return result;
 }
 
-// a' = sigm(wa + b) for each layer with input activation a, output a'
-Matrix NN::feed_forward_with_sigm(Matrix& a) const
-{
-  Matrix output{a};
-  for (size_t i{}; i < biases.size(); ++i)
-  {
-    Matrix b = biases[i];
-
-    Matrix z = weights[i].matrix_mul(output);
-    z.matrix_add(b);
-
-    output = sigmoid(z);
-  }
-  return output;
-}
-
-std::vector<Matrix> NN::activations_no_sigm(Matrix& input) const
-{
-  std::vector<Matrix> activations(layer_count);
-  activations[0] = input;
-
-  // i is the layer index from with the activations are currently passed forward
-  for (size_t i{}; i < layer_count - 1; ++i)
-  {
-    Matrix b = biases[i];
-    Matrix z = weights[i].matrix_mul(activations[i]);
-    z.matrix_add(b);
-    activations[i+1] = z;
-  }
-  return activations;
-}
-
-std::vector<Matrix> NN::activations_after_sigm(Matrix& input) const
-{
-  std::vector<Matrix> activations(layer_count);
-  activations[0] = input;
-
-  // i is the layer index from with the activations are currently passed forward
-  for (size_t i{}; i < layer_count - 1; ++i)
-  {
-    Matrix b = biases[i];
-    Matrix z = weights[i].matrix_mul(activations[i]);
-    z.matrix_add(b);
-    activations[i+1] = sigmoid(z);
-  }
-  return activations;
-}
-
 Matrix sigmoid_derivative(Matrix z)
 {
   Matrix result = sigmoid(z); // result = sigm(z)
