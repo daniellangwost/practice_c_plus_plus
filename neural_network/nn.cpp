@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <random>
 #include "matrix.h"
 #include "nn.h"
 
@@ -17,11 +18,28 @@ NN::NN(std::vector<size_t> neuron_counts)
     , biases{std::vector<Matrix>(layer_count-1)}
     , weights{std::vector<Matrix>(layer_count-1)}
 {
-    for (size_t i{}; i < layer_count-1; ++i)
+
+  std::random_device rd;
+  std::mt19937 gen(rd());
+
+  for (size_t l{}; l < layer_count-1; ++l)
+  {
+    biases[l] = Matrix(neuron_counts[l+1], (size_t)1);
+
+    size_t rows = neuron_counts[l+1];
+    size_t cols = neuron_counts[l];
+    weights[l] = Matrix(rows, cols);
+
+    std::normal_distribution<double> dist(0.0, 0.01);
+
+    for (size_t i{}; i < rows; ++i)
     {
-        biases[i] = Matrix(neuron_counts[i+1], (size_t)1);
-        weights[i] = Matrix(neuron_counts[i+1], neuron_counts[i]);
+      for (size_t j{}; j < cols; ++j)
+      {
+        weights[l].set(i, j, dist(gen));
+      }
     }
+  }
 }
 
 Matrix sigmoid(Matrix& z) 
@@ -37,12 +55,12 @@ Matrix sigmoid(Matrix& z)
 }
 
 // a' = sigm(wa + b) for each layer with input activation a, output a'
-Matrix NN::feed_forward_with_sigm(Matrix& a)
+Matrix NN::feed_forward_with_sigm(Matrix& a) const
 {
   Matrix output{a};
   for (size_t i{}; i < biases.size(); ++i)
   {
-    Matrix& b = biases[i];
+    Matrix b = biases[i];
 
     Matrix z = weights[i].matrix_mul(output);
     z.matrix_add(b);
@@ -52,7 +70,7 @@ Matrix NN::feed_forward_with_sigm(Matrix& a)
   return output;
 }
 
-std::vector<Matrix> NN::activations_no_sigm(Matrix& input) // TESTED
+std::vector<Matrix> NN::activations_no_sigm(Matrix& input) const
 {
   std::vector<Matrix> activations(layer_count);
   activations[0] = input;
@@ -60,7 +78,7 @@ std::vector<Matrix> NN::activations_no_sigm(Matrix& input) // TESTED
   // i is the layer index from with the activations are currently passed forward
   for (size_t i{}; i < layer_count - 1; ++i)
   {
-    Matrix& b = biases[i];
+    Matrix b = biases[i];
     Matrix z = weights[i].matrix_mul(activations[i]);
     z.matrix_add(b);
     activations[i+1] = z;
@@ -68,38 +86,70 @@ std::vector<Matrix> NN::activations_no_sigm(Matrix& input) // TESTED
   return activations;
 }
 
+std::vector<Matrix> NN::activations_after_sigm(Matrix& input) const
+{
+  std::vector<Matrix> activations(layer_count);
+  activations[0] = input;
+
+  // i is the layer index from with the activations are currently passed forward
+  for (size_t i{}; i < layer_count - 1; ++i)
+  {
+    Matrix b = biases[i];
+    Matrix z = weights[i].matrix_mul(activations[i]);
+    z.matrix_add(b);
+    activations[i+1] = sigmoid(z);
+  }
+  return activations;
+}
+
 Matrix sigmoid_derivative(Matrix z)
 {
   Matrix result = sigmoid(z); // result = sigm(z)
-  result.matrix_mul_s(-1); // result = -sigm(z)
-  result.matrix_sub_s(-1); // result = 1-sigm(z)
+  Matrix temp = result;
+  temp.matrix_mul_s(-1); // result = -sigm(z)
+  temp.matrix_sub_s(-1); // result = 1-sigm(z)
 
-  return sigmoid(z).matrix_mul(result);
+  result.hadamard(temp);
+  return result;
 }
 
 // returns lists of gradients for weights and biases
-std::pair<std::vector<Matrix>, std::vector<Matrix>> NN::backprop(Matrix& input, Matrix& desired_output)
+std::pair<std::vector<Matrix>, std::vector<Matrix>> NN::backprop(Matrix& input, Matrix& desired_output) const
 {
+  std::vector<Matrix> z_values;
+  std::vector<Matrix> a_values;
+  z_values.reserve(layer_count-1);
+  a_values.reserve(layer_count);
 
-  std::vector<Matrix> activations = activations_no_sigm(input);
+  a_values.push_back(input);
+
+  Matrix curr_activations = input;
+  for (size_t i{}; i < layer_count-1; ++i)
+  {
+    Matrix z = weights[i].matrix_mul(curr_activations);
+    z.matrix_add(biases[i]);
+    z_values.push_back(z);
+    
+    curr_activations = sigmoid(z);
+    a_values.push_back(curr_activations);
+  }
 
   // feed forward to arrive at list of output activations
-  Matrix output_error = feed_forward_with_sigm(input);
-  Matrix output_no_sigm = activations[activations.size() - 1];
-
+  Matrix output_error = a_values[a_values.size()-1];
   output_error.matrix_sub(desired_output);
-  output_error.hadamard(sigmoid_derivative(output_no_sigm));
-  
+  output_error.hadamard(sigmoid_derivative(z_values[z_values.size()-1]));
+
   std::vector<Matrix> errors(layer_count-1);
   errors[errors.size() - 1] = output_error;
+
 
   // loop backwards over layers L-1 to 2, calculate error
   for (size_t layer{layer_count-2}; layer > 0; layer--)
   {
-      Matrix current_error = weights[layer+1].transpose();
-      current_error = current_error.matrix_mul(errors[layer+1]);
-      current_error.hadamard(sigmoid_derivative(activations[layer]));
-      errors[layer] = current_error;
+      Matrix current_error = weights[layer].transpose();
+      current_error = current_error.matrix_mul(errors[layer]);
+      current_error.hadamard(sigmoid_derivative(z_values[layer-1]));
+      errors[layer-1] = current_error;
   }
 
   std::vector<Matrix> gradient_biases = errors;
@@ -112,12 +162,12 @@ std::pair<std::vector<Matrix>, std::vector<Matrix>> NN::backprop(Matrix& input, 
     size_t cols{neuron_counts[layer_index-1]};
     gradient_weights.push_back(
       Matrix(rows, cols));
-
+    
     for (size_t j{}; j < rows; ++j)
     {
       for (size_t k{}; k < cols; k++)
       {
-        double val = activations[layer_index-1].get(k, 1) * errors[layer_index].get(j, 1);
+        double val = a_values[layer_index-1].get(k, 0) * errors[layer_index-1].get(j, 0);
         gradient_weights[layer_index-1].set(j, k, val);
       }
     }
@@ -129,7 +179,7 @@ void NN::update_network(
   std::vector<std::pair<Matrix, Matrix>> training_data, double learning_rate)
 {
 
-  int batch_size {training_data.size()};
+  int batch_size = static_cast<int>(training_data.size());
 
   std::vector<Matrix> avg_gradient_weights;
   std::vector<Matrix> avg_gradient_biases;
@@ -167,7 +217,7 @@ void NN::update_network(
   }
 
   // update weights and biases
-  for (int i{}; i < weights.size(); ++i) 
+  for (size_t i{}; i < weights.size(); ++i) 
   {
     Matrix diff = avg_gradient_weights[i];
     diff.matrix_mul_s(learning_rate);
@@ -178,3 +228,79 @@ void NN::update_network(
     biases[i].matrix_sub(diff);
   }
 } 
+
+void NN::train(std::vector<std::pair<Matrix, Matrix>> training_data, int epochs, size_t batch_size, double learning_rate, std::vector<std::pair<Matrix, Matrix>> test_data = {})
+{
+  std::cout << "Training started!\n";
+  size_t training_data_size = training_data.size();
+
+  std::random_device rd;
+  std::mt19937 gen(rd());
+
+  for (int epoch{}; epoch < epochs; ++epoch)
+  {
+    size_t batch_count = training_data_size / batch_size;
+    std::shuffle(training_data.begin(), training_data.end(), gen);
+    for (size_t i{}; i < batch_count; ++i)
+    {
+      std::vector<std::pair<Matrix, Matrix>> batch_data;
+      batch_data.reserve(batch_size);
+      for (size_t j{}; j < batch_size; ++j)
+      {
+        batch_data.push_back(training_data[i * batch_size + j]);
+      }
+      update_network(batch_data, learning_rate);
+    }
+    size_t remaining_data = training_data_size % batch_size;
+    if (remaining_data > 0)
+    {
+      std::vector<std::pair<Matrix, Matrix>> batch_data;
+      batch_data.reserve(remaining_data);
+      for (size_t i{training_data_size - remaining_data}; i < training_data_size; i++)
+      {
+        batch_data.push_back(training_data[i]);
+      }
+      update_network(batch_data, learning_rate);
+    }
+    std::cout << "Epoch " << epoch << ": ";
+    if (!test_data.empty())
+    {
+      double percent_correct = test(test_data);
+      std::cout << "Accuracy: " << percent_correct << "%\n";
+    }
+    else
+    {
+      std::cout << "\n";
+    }
+  }
+}
+
+double NN::test(std::vector<std::pair<Matrix, Matrix>> test_data)
+{
+  int correct_count{};
+  for (auto& test : test_data)
+  {
+    Matrix& input = test.first;
+    Matrix& correct_output = test.second;
+
+    Matrix network_output = feed_forward_with_sigm(input);
+    size_t max_index_correct_output{};
+
+    size_t max_index_network_output{};
+    double max_value_network_output{network_output.get(0, 0)};
+
+    for (size_t i{}; i < neuron_counts[layer_count-1]; ++i)
+    {
+      if (correct_output.get(i, 0) == 1) max_index_correct_output = i;
+
+      if (network_output.get(i, 0) > max_value_network_output)
+      {
+        max_value_network_output = network_output.get(i, 0);
+        max_index_network_output = i;
+      }
+    }
+    if (max_index_correct_output == max_index_network_output) correct_count++;
+  }
+  
+  return ((double)correct_count / (double)test_data.size()) * 100;
+}
