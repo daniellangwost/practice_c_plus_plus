@@ -94,7 +94,7 @@ std::pair<std::vector<Matrix>, std::vector<Matrix>> NN::backprop(Matrix& input, 
   errors[errors.size() - 1] = output_error;
 
   // loop backwards over layers L-1 to 2, calculate error
-  for (int layer{layer_count-2}; layer > 0; layer--)
+  for (size_t layer{layer_count-2}; layer > 0; layer--)
   {
       Matrix current_error = weights[layer+1].transpose();
       current_error = current_error.matrix_mul(errors[layer+1]);
@@ -106,16 +106,16 @@ std::pair<std::vector<Matrix>, std::vector<Matrix>> NN::backprop(Matrix& input, 
   std::vector<Matrix> gradient_weights;
   gradient_weights.reserve(layer_count-1);
 
-  for (int layer_index{1}; layer_index < layer_count; layer_index++)
+  for (size_t layer_index{1}; layer_index < layer_count; layer_index++)
   {
     size_t rows{neuron_counts[layer_index]};
     size_t cols{neuron_counts[layer_index-1]};
     gradient_weights.push_back(
       Matrix(rows, cols));
 
-    for (int j{}; j < rows; ++j)
+    for (size_t j{}; j < rows; ++j)
     {
-      for (int k{}; k < cols; k++)
+      for (size_t k{}; k < cols; k++)
       {
         double val = activations[layer_index-1].get(k, 1) * errors[layer_index].get(j, 1);
         gradient_weights[layer_index-1].set(j, k, val);
@@ -124,3 +124,57 @@ std::pair<std::vector<Matrix>, std::vector<Matrix>> NN::backprop(Matrix& input, 
   }
   return std::pair<std::vector<Matrix>, std::vector<Matrix>>{gradient_weights, gradient_biases};
 }
+
+void NN::update_network(
+  std::vector<std::pair<Matrix, Matrix>> training_data, double learning_rate)
+{
+
+  int batch_size {training_data.size()};
+
+  std::vector<Matrix> avg_gradient_weights;
+  std::vector<Matrix> avg_gradient_biases;
+  avg_gradient_weights.reserve(layer_count-1);
+  avg_gradient_biases.reserve(layer_count-1);
+
+  for (size_t i{}; i < layer_count-1; ++i)
+  {
+    avg_gradient_weights.push_back(Matrix(neuron_counts[i+1], neuron_counts[i]));
+    avg_gradient_biases.push_back(Matrix(neuron_counts[i+1], 1));
+  }
+
+  for (std::pair<Matrix, Matrix>& example : training_data)
+  {
+    Matrix& input = example.first;
+    Matrix& desired_output = example.second;
+    
+    std::pair<std::vector<Matrix>, std::vector<Matrix>> example_gradients = backprop(input, desired_output);
+    std::vector<Matrix>& example_gradient_weights = example_gradients.first;
+    std::vector<Matrix>& example_gradient_biases = example_gradients.second;
+
+    // add up all the gradients
+    for (size_t i{}; i < example_gradient_weights.size(); ++i)
+    {
+      avg_gradient_weights[i].matrix_add(example_gradient_weights[i]);
+      avg_gradient_biases[i].matrix_add(example_gradient_biases[i]);
+    }
+  }
+
+  // scale gradients by batch size
+  for (size_t i{}; i < avg_gradient_biases.size(); ++i)
+  {
+    avg_gradient_weights[i].matrix_mul_s(1.0/batch_size);
+    avg_gradient_biases[i].matrix_mul_s(1.0/batch_size);
+  }
+
+  // update weights and biases
+  for (int i{}; i < weights.size(); ++i) 
+  {
+    Matrix diff = avg_gradient_weights[i];
+    diff.matrix_mul_s(learning_rate);
+    weights[i].matrix_sub(diff);
+
+    diff = avg_gradient_biases[i];
+    diff.matrix_mul_s(learning_rate);
+    biases[i].matrix_sub(diff);
+  }
+} 

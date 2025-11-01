@@ -18,7 +18,7 @@ public:
     Matrix feed_forward_with_sigm(Matrix& a);
     std::vector<Matrix> activations_no_sigm(Matrix& a);
     std::pair<std::vector<Matrix>, std::vector<Matrix>> backprop(Matrix& x, Matrix& y);
-
+    void update_network(std::vector<std::pair<Matrix, Matrix>> training_data, double learning_rate);
 };
 
 #endif
